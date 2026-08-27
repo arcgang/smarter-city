@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: smarter-city
+  annotations:
+    github.com/project-slug: arcgang/smarter-city
+spec:
+  type: react
+  lifecycle: experimental
+  owner: arcgang
+  system: saltlake
