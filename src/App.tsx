@@ -1,6 +1,7 @@
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import { EventCollaborationPage } from "./pages/EventCollaborationPage";
 import { EventRegistrationPage } from "./pages/EventRegistrationPage";
+import { FanDashboardPage } from "./pages/FanDashboardPage";
 
 function Home() {
   return (
@@ -24,6 +25,9 @@ function Nav() {
         <li>
           <Link to="/events/register">Register an Event</Link>
         </li>
+        <li>
+          <Link to="/fan-dashboard">Fan Dashboard</Link>
+        </li>
       </ul>
     </nav>
   );
@@ -37,6 +41,7 @@ export function App() {
         <Route path="/" element={<Home />} />
         <Route path="/events/collaborate" element={<EventCollaborationPage />} />
         <Route path="/events/register" element={<EventRegistrationPage />} />
+        <Route path="/fan-dashboard" element={<FanDashboardPage />} />
       </Routes>
     </BrowserRouter>
   );
