@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { App } from "./App";
 import { EventCollaborationPage } from "./pages/EventCollaborationPage";
 import { EventRegistrationPage } from "./pages/EventRegistrationPage";
+import { EyeCheckupDashboardPage } from "./pages/EyeCheckupDashboardPage";
 import { FanDashboardPage } from "./pages/FanDashboardPage";
 
 test("renders the home heading", () => {
@@ -175,5 +176,179 @@ test("EventCollaborationPage lists placeholder event titles", () => {
   ).toBeTruthy();
   expect(
     screen.getByRole("heading", { name: "Neighbourhood Clean-Up" }),
+  ).toBeTruthy();
+});
+
+test("App renders Eye Checkup Dashboard nav link", () => {
+  render(<App />);
+  expect(
+    screen.getByRole("link", { name: "Eye Checkup Dashboard" }),
+  ).toBeTruthy();
+});
+
+test("EyeCheckupDashboardPage renders the main heading", () => {
+  render(
+    <MemoryRouter>
+      <EyeCheckupDashboardPage />
+    </MemoryRouter>,
+  );
+  expect(
+    screen.getByRole("heading", { name: "Eye Checkup Dashboard" }),
+  ).toBeTruthy();
+});
+
+test("EyeCheckupDashboardPage displays quarterly eye checkup details", () => {
+  render(
+    <MemoryRouter>
+      <EyeCheckupDashboardPage />
+    </MemoryRouter>,
+  );
+  expect(
+    screen.getByRole("heading", { name: "Q1 2025 Checkup - 2025-01-15" }),
+  ).toBeTruthy();
+  expect(
+    screen.getByRole("heading", { name: "Q2 2025 Checkup - 2025-04-10" }),
+  ).toBeTruthy();
+  expect(
+    screen.getByRole("heading", { name: "Q3 2025 Checkup - 2025-07-22" }),
+  ).toBeTruthy();
+  expect(
+    screen.getByRole("heading", { name: "Q4 2025 Checkup - 2025-10-18" }),
+  ).toBeTruthy();
+});
+
+test("EyeCheckupDashboardPage displays doctor recommendations", () => {
+  render(
+    <MemoryRouter>
+      <EyeCheckupDashboardPage />
+    </MemoryRouter>,
+  );
+  const recHeadings = screen.getAllByRole("heading", {
+    name: "Doctor Recommendations",
+  });
+  expect(recHeadings.length).toBe(4);
+  expect(
+    screen.getByText("Follow the 20-20-20 rule during screen work."),
+  ).toBeTruthy();
+  expect(
+    screen.getByText("Wear UV-blocking sunglasses during outdoor activities."),
+  ).toBeTruthy();
+  expect(
+    screen.getByText("Annual retinal scan scheduled for Q4."),
+  ).toBeTruthy();
+  expect(
+    screen.getByText("Annual retinal imaging completed — clear and healthy."),
+  ).toBeTruthy();
+});
+
+test("EyeCheckupDashboardPage displays power metrics per eye in tables", () => {
+  render(
+    <MemoryRouter>
+      <EyeCheckupDashboardPage />
+    </MemoryRouter>,
+  );
+  const metricsHeadings = screen.getAllByRole("heading", {
+    name: "Power Metrics Per Eye",
+  });
+  expect(metricsHeadings.length).toBe(4);
+
+  const leftEyeRows = screen.getAllByRole("rowheader", {
+    name: "Left Eye (OS)",
+  });
+  const rightEyeRows = screen.getAllByRole("rowheader", {
+    name: "Right Eye (OD)",
+  });
+  expect(leftEyeRows.length).toBe(4);
+  expect(rightEyeRows.length).toBe(4);
+
+  // Check specific power metrics values rendered
+  expect(screen.getAllByText("-1.75 D").length).toBeGreaterThanOrEqual(2);
+  expect(screen.getAllByText("-2.00 D").length).toBeGreaterThanOrEqual(2);
+});
+
+test("EyeCheckupDashboardPage filters checkups by exact date", () => {
+  render(
+    <MemoryRouter>
+      <EyeCheckupDashboardPage />
+    </MemoryRouter>,
+  );
+  const specificDateInput = screen.getByLabelText("Exact Date");
+  fireEvent.change(specificDateInput, { target: { value: "2025-04-10" } });
+
+  expect(
+    screen.getByRole("heading", { name: "Q2 2025 Checkup - 2025-04-10" }),
+  ).toBeTruthy();
+  expect(
+    screen.queryByRole("heading", { name: "Q1 2025 Checkup - 2025-01-15" }),
+  ).toBeNull();
+  expect(
+    screen.queryByRole("heading", { name: "Q3 2025 Checkup - 2025-07-22" }),
+  ).toBeNull();
+  expect(
+    screen.queryByRole("heading", { name: "Q4 2025 Checkup - 2025-10-18" }),
+  ).toBeNull();
+});
+
+test("EyeCheckupDashboardPage filters checkups by date range", () => {
+  render(
+    <MemoryRouter>
+      <EyeCheckupDashboardPage />
+    </MemoryRouter>,
+  );
+  const startDateInput = screen.getByLabelText("From Date");
+  const endDateInput = screen.getByLabelText("To Date");
+
+  fireEvent.change(startDateInput, { target: { value: "2025-04-01" } });
+  fireEvent.change(endDateInput, { target: { value: "2025-08-01" } });
+
+  expect(
+    screen.queryByRole("heading", { name: "Q1 2025 Checkup - 2025-01-15" }),
+  ).toBeNull();
+  expect(
+    screen.getByRole("heading", { name: "Q2 2025 Checkup - 2025-04-10" }),
+  ).toBeTruthy();
+  expect(
+    screen.getByRole("heading", { name: "Q3 2025 Checkup - 2025-07-22" }),
+  ).toBeTruthy();
+  expect(
+    screen.queryByRole("heading", { name: "Q4 2025 Checkup - 2025-10-18" }),
+  ).toBeNull();
+});
+
+test("EyeCheckupDashboardPage shows empty message when no checkups match filter", () => {
+  render(
+    <MemoryRouter>
+      <EyeCheckupDashboardPage />
+    </MemoryRouter>,
+  );
+  const specificDateInput = screen.getByLabelText("Exact Date");
+  fireEvent.change(specificDateInput, { target: { value: "2026-01-01" } });
+
+  expect(
+    screen.getByText("No eye checkups found for the selected date filter."),
+  ).toBeTruthy();
+});
+
+test("EyeCheckupDashboardPage resets filters when Reset Filters button is clicked", () => {
+  render(
+    <MemoryRouter>
+      <EyeCheckupDashboardPage />
+    </MemoryRouter>,
+  );
+  const specificDateInput = screen.getByLabelText("Exact Date");
+  fireEvent.change(specificDateInput, { target: { value: "2025-01-15" } });
+
+  expect(
+    screen.queryByRole("heading", { name: "Q2 2025 Checkup - 2025-04-10" }),
+  ).toBeNull();
+
+  const resetButton = screen.getByRole("button", { name: "Reset Filters" });
+  fireEvent.click(resetButton);
+
+  expect(
+    screen.getByRole("heading", { name: "Q1 2025 Checkup - 2025-01-15" }),
+  ).toBeTruthy();
+  expect(
+    screen.getByRole("heading", { name: "Q2 2025 Checkup - 2025-04-10" }),
   ).toBeTruthy();
 });
